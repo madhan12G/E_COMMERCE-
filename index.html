@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Store & Admin Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col font-sans text-gray-800">
+
+    <!-- ==================== AUTHENTICATION VIEW ==================== -->
+    <div id="auth-view" class="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+        <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl">
+            <div class="text-center mb-6">
+                <i class="fa-solid fa-bag-shopping text-4xl text-blue-600 mb-2"></i>
+                <h1 id="form-title" class="text-2xl font-bold text-gray-800">Login to Store</h1>
+                <p class="text-sm text-gray-500 mt-1">Access your shopping experience or admin console</p>
+            </div>
+
+            <!-- Alert Notification Box -->
+            <div id="alert-box" class="hidden mb-4 p-3 text-sm rounded-lg"></div>
+
+            <!-- Form -->
+            <form id="auth-form" class="space-y-4">
+                <div id="name-field" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input type="text" id="name"
+                        class="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input type="email" id="email" required placeholder="user@gmail.com or admin@gmail.com"
+                        class="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="password" required
+                        class="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
+                </div>
+                <button type="submit" id="submit-btn"
+                    class="w-full bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 transition font-semibold shadow-md">Login</button>
+            </form>
+
+            <!-- Toggle View Links -->
+            <div class="mt-6 text-center text-sm text-gray-600">
+                <p id="toggle-text">Don't have an account? <button onclick="toggleMode()"
+                        class="text-blue-600 font-semibold hover:underline">Register</button></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== E-COMMERCE SHOPPING / USER DASHBOARD ==================== -->
+    <div id="shop-view" class="hidden flex-col min-h-screen">
+        <!-- Navbar -->
+        <header class="bg-white shadow-sm sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-bag-shopping text-2xl text-blue-600"></i>
+                    <span class="text-xl font-bold tracking-tight text-gray-900">E COMMERCE Store</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Home</a>
+
+                    <a href="feedback.html" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Feedback</a>
+                    <a href="contact.html" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Contact</a>
+                    <span class="text-sm text-gray-600">Hello, <strong id="shop-username"
+                            class="text-blue-600"></strong></span>
+                    <button onclick="openCart()"
+                        class="relative bg-gray-100 hover:bg-gray-200 p-2.5 rounded-full transition">
+                        <i class="fa-solid fa-cart-shopping text-gray-700"></i>
+                        <span id="cart-badge"
+                            class="absolute -top-1 -right-1 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">0</span>
+                    </button>
+                    <button onclick="logout()"
+                        class="text-sm bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg font-medium transition">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Storefront: product catalog and customer contact page -->
+        <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Featured Products</h2>
+                    <p class="text-gray-500 text-sm">Explore our latest collection of top-tier gadgets and gear.</p>
+                </div>
+                <div class="w-full md:w-72">
+                    <input type="text" id="search-input" oninput="filterProducts()" placeholder="Search products..."
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none text-sm">
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Dynamically populated products -->
+            </div>
+
+            <!-- Feedback section -->
+            <section id="feedback" class="mt-16 bg-white rounded-2xl shadow-sm border p-6 md:p-10">
+                <div class="max-w-3xl mx-auto">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold text-gray-900">Feedback</h2>
+                        <p class="text-gray-600 mt-2">We’d love to hear from you about your shopping experience.</p>
+                    </div>
+
+                    <form id="feedback-form" class="space-y-4">
+                        <div>
+                            <label for="feedback-name" class="block text-sm font-medium text-gray-700">Name</label>
+                            <input id="feedback-name" name="name" type="text" required
+                                class="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
+                        </div>
+                        <div>
+                            <label for="feedback-email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input id="feedback-email" name="email" type="email" required
+                                class="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
+                        </div>
+                        <div>
+                            <label for="feedback-message" class="block text-sm font-medium text-gray-700">Your
+                                Feedback</label>
+                            <textarea id="feedback-message" name="message" rows="5" required
+                                class="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"></textarea>
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold shadow transition">
+                            Send Feedback
+                        </button>
+                        <p id="feedback-status" class="text-sm text-gray-600" role="status" aria-live="polite"></p>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Contact page: customer support details and a message form -->
+            <section id="contact" class="mt-16 bg-white rounded-2xl shadow-sm border p-6 md:p-10">
+                <div class="max-w-3xl mx-auto">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold text-gray-900">Contact Us</h2>
+                        <p class="text-gray-600 mt-2">Questions about an order or product? Send our team a message.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-5">
+                            <div class="flex items-start gap-3">
+                                <i class="fa-solid fa-envelope text-blue-600 mt-1"></i>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Email</h3>
+                                    <a href="mailto:support@nexusstore.com"
+                                        class="text-blue-600 hover:underline">support@nexusstore.com</a>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i class="fa-solid fa-clock text-blue-600 mt-1"></i>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">Support hours</h3>
+                                    <p class="text-gray-600">Monday–Friday, 9:00 AM–5:00 PM</p>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500">Your message will be sent to our support team and saved
+                                securely.</p>
+                        </div>
+
+                        <form id="contact-form" class="space-y-4">
+                            <div>
+                                <label for="contact-name" class="block text-sm font-medium text-gray-700">Name</label>
+                                <input id="contact-name" name="name" type="text" required
+                                    class="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
+                            </div>
+                            <div>
+                                <label for="contact-email" class="block text-sm font-medium text-gray-700">Email</label>
+                                <input id="contact-email" name="email" type="email" required
+                                    class="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
+                            </div>
+                            <div>
+                                <label for="contact-message"
+                                    class="block text-sm font-medium text-gray-700">Message</label>
+                                <textarea id="contact-message" name="message" rows="4" required
+                                    class="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"></textarea>
+                            </div>
+                            <button type="submit"
+                                class="w-full bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 transition font-semibold">Send
+                                Message</button>
+                            <p id="contact-status" class="text-sm text-gray-600" role="status" aria-live="polite"></p>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ==================== ADMIN DASHBOARD ==================== -->
+    <div id="admin-view" class="hidden flex-col min-h-screen">
+        <!-- Admin Navbar -->
+        <header class="bg-gray-900 text-white shadow-md sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-shield-halved text-2xl text-indigo-400"></i>
+                    <span class="text-xl font-bold tracking-tight">Nexus Admin Console</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-300">Admin: <strong id="admin-username"
+                            class="text-indigo-400"></strong></span>
+                    <button onclick="logout()"
+                        class="text-sm bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg font-medium transition text-white">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Admin Content -->
+        <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border">
+                    <p class="text-sm text-gray-500 font-medium">Total Products</p>
+                    <h3 class="text-3xl font-bold text-gray-800 mt-1">4</h3>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border">
+                    <p class="text-sm text-gray-500 font-medium">Active Orders</p>
+                    <h3 class="text-3xl font-bold text-indigo-600 mt-1">12</h3>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border">
+                    <p class="text-sm text-gray-500 font-medium">System Status</p>
+                    <h3 class="text-xl font-bold text-green-600 mt-1 flex items-center gap-2"><span
+                            class="w-3 h-3 bg-green-500 rounded-full inline-block animate-pulse"></span> Connected</h3>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                <div class="p-6 border-b flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-gray-800">Product Inventory Management</h3>
+                    <button onclick="alert('Add product feature ready for custom implementation!')"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">+
+                        Add New Product</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider border-b">
+                                <th class="p-4">Item</th>
+                                <th class="p-4">Category</th>
+                                <th class="p-4">Price</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-product-table" class="divide-y text-sm">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ==================== SHOPPING CART SLIDE-OVER DRAWER ==================== -->
+    <div id="cart-drawer" class="fixed inset-0 z-50 overflow-hidden hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50 transition-opacity" onclick="closeCart()"></div>
+        <div class="absolute inset-y-0 right-0 max-w-full flex pl-10">
+            <div class="w-screen max-w-md bg-white shadow-2xl flex flex-col">
+                <div class="p-6 border-b flex items-center justify-between">
+                    <h2 class="text-lg font-bold text-gray-900">Your Shopping Cart</h2>
+                    <button onclick="closeCart()"
+                        class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+                </div>
+                <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 space-y-4">
+                    <!-- Cart items listed here -->
+                </div>
+                <div class="p-6 border-b bg-gray-50">
+                    <div class="flex justify-between text-base font-medium text-gray-900 mb-4">
+                        <p>Subtotal</p>
+                        <p id="cart-subtotal">₹0</p>
+                    </div>
+                    <button onclick="checkout()"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold shadow transition">Proceed
+                        to Checkout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        const API_URL = 'http://localhost:5000/api/auth';
+        let isRegisterMode = false;
+
+        function formatINR(amount) {
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Sample Catalog Products
+
+        const products = [
+            {
+                id: 1,
+                name: "Wireless Noise Cancelling Headphones",
+                price: 24999,
+                originalPrice: 29999,
+                discount: 17,
+                category: "Electronics",
+                image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: 2,
+                name: "Ergonomic Mechanical Keyboard",
+                price: 12999,
+                originalPrice: 14999,
+                discount: 13,
+                category: "Electronics",
+                image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: 3,
+                name: "Minimalist Leather Backpack",
+                price: 8999,
+                originalPrice: 11999,
+                discount: 25,
+                category: "Accessories",
+                image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: 4,
+                name: "Smart Fitness Tracker",
+                price: 5999,
+                originalPrice: 7999,
+                discount: 25,
+                category: "Electronics",
+                image: "https://images.unsplash.com/photo-1603791440384-56cd371ee9a7?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: 5,
+                name: "Stainless Steel Water Bottle",
+                price: 2499,
+                originalPrice: 2999,
+                discount: 17,
+                category: "Accessories",
+                image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: 6,
+                name: "Portable Bluetooth Speaker",
+                price: 4999,
+                originalPrice: 5999,
+                discount: 17,
+                category: "Electronics",
+                image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: 7,
+                name: "Classic Aviator Sunglasses",
+                price: 7999,
+                originalPrice: 9999,
+                discount: 20,
+                category: "Accessories",
+                image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: 8,
+                name: "Wireless Charging Pad",
+                price: 3999,
+                originalPrice: 4999,
+                discount: 20,
+                category: "Electronics",
+                image: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=900&q=80"
+            }
+        ];
+
+        let cart = [];
+
+        function toggleMode() {
+            isRegisterMode = !isRegisterMode;
+            const title = document.getElementById('form-title');
+            const nameField = document.getElementById('name-field');
+            const submitBtn = document.getElementById('submit-btn');
+            const toggleText = document.getElementById('toggle-text');
+
+            if (isRegisterMode) {
+                title.innerText = 'Create Store Account';
+                nameField.classList.remove('hidden');
+                submitBtn.innerText = 'Register';
+                toggleText.innerHTML = 'Already have an account? <button onclick="toggleMode()" class="text-blue-600 font-semibold hover:underline">Login</button>';
+            } else {
+                title.innerText = 'Login to Store';
+                nameField.classList.add('hidden');
+                submitBtn.innerText = 'Login';
+                toggleText.innerHTML = 'Don\'t have an account? <button onclick="toggleMode()" class="text-blue-600 font-semibold hover:underline">Register</button>';
+            }
+            hideAlert();
+        }
+
+        function showAlert(message, isSuccess) {
+            const alertBox = document.getElementById('alert-box');
+            alertBox.innerText = message;
+            alertBox.className = `mb-4 p-3 text-sm rounded-lg ${isSuccess ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
+            alertBox.classList.remove('hidden');
+        }
+
+        function hideAlert() {
+            document.getElementById('alert-box').classList.add('hidden');
+        }
+
+        document.getElementById('contact-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const form = event.currentTarget;
+            const formData = new FormData(form);
+            const button = form.querySelector('button[type="submit"]');
+            const status = document.getElementById('contact-status');
+            button.disabled = true;
+            status.textContent = 'Sending your message...';
+
+            try {
+                const response = await fetch('http://localhost:5000/api/contact-support', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: formData.get('name'),
+                        email: formData.get('email'),
+                        message: formData.get('message')
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Unable to send your message.');
+                form.reset();
+                status.textContent = data.message || 'Your message was sent.';
+            } catch (error) {
+                status.textContent = error instanceof Error
+                    ? error.message
+                    : 'Unable to connect to the server. Please try again.';
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        document.getElementById('feedback-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const form = event.currentTarget;
+            const formData = new FormData(form);
+            const button = form.querySelector('button[type="submit"]');
+            const status = document.getElementById('feedback-status');
+            button.disabled = true;
+            status.textContent = 'Saving your feedback...';
+
+            try {
+                const response = await fetch('http://localhost:5000/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: formData.get('name'),
+                        message: formData.get('message')
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Unable to save feedback.');
+                form.reset();
+                status.textContent = data.message || 'Your feedback has been saved.';
+            } catch (error) {
+                status.textContent = error instanceof Error
+                    ? error.message
+                    : 'Unable to connect to the server. Please try again.';
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        // Authentication Submission Handler
+        document.getElementById('auth-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlert();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const endpoint = isRegisterMode ? `${API_URL}/register` : `${API_URL}/login`;
+
+            let bodyData = { email, password };
+            if (isRegisterMode) {
+                bodyData.name = document.getElementById('name').value;
+            }
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bodyData)
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    if (isRegisterMode) {
+                        showAlert('Registration successful! Please login.', true);
+                        toggleMode();
+                    } else {
+                        showAlert('Login successful!', true);
+                        localStorage.setItem('token', data.token);
+                        localStorage.setItem('userName', data.user.name);
+                        localStorage.setItem('userEmail', data.user.email);
+
+                        // Check if user is admin (by email match or explicit role check)
+                        const isAdmin = data.user.email.toLowerCase().includes('admin');
+                        localStorage.setItem('userRole', isAdmin ? 'admin' : 'user');
+
+                        routeUser(isAdmin ? 'admin' : 'user', data.user.name);
+                    }
+                } else {
+                    showAlert(data.message, false);
+                }
+            } catch (err) {
+                showAlert('Unable to connect to Node.js backend server on port 5000.', false);
+            }
+        });
+
+        // Route user based on role
+        function routeUser(role, name) {
+            document.getElementById('auth-view').classList.add('hidden');
+            document.getElementById('shop-view').classList.add('hidden');
+            document.getElementById('admin-view').classList.add('hidden');
+
+            if (role === 'admin') {
+                document.getElementById('admin-view').classList.remove('flex');
+                document.getElementById('admin-view').classList.remove('hidden');
+                document.getElementById('admin-view').classList.add('flex');
+                document.getElementById('admin-username').innerText = name;
+                loadAdminTable();
+            } else {
+                document.getElementById('shop-view').classList.remove('flex');
+                document.getElementById('shop-view').classList.remove('hidden');
+                document.getElementById('shop-view').classList.add('flex');
+                document.getElementById('shop-username').innerText = name;
+                renderProducts(products);
+            }
+        }
+
+        // Render Product Catalog
+        function renderProducts(items) {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = items.map(p => `
+                <div class="bg-white rounded-xl shadow-sm border overflow-hidden flex flex-col">
+                    <img src="${p.image}" alt="${p.name}" class="h-48 w-full object-cover">
+                    <div class="p-4 flex flex-col flex-grow">
+                        <span class="text-xs text-blue-600 font-semibold uppercase tracking-wider mb-1">${p.category}</span>
+                        <h3 class="font-bold text-gray-800 mb-2 flex-grow">${p.name}</h3>
+                        <div class="flex items-center justify-between mt-4">
+                            <span class="text-lg font-bold text-gray-900">${formatINR(p.price)}</span>
+                            <button onclick="addToCart(${p.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterProducts() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query));
+            renderProducts(filtered);
+        }
+
+        // Admin Table View
+        function loadAdminTable() {
+            const tbody = document.getElementById('admin-product-table');
+            tbody.innerHTML = products.map(p => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-4 flex items-center space-x-3">
+                        <img src="${p.image}" class="w-10 h-10 rounded object-cover">
+                        <span class="font-medium text-gray-800">${p.name}</span>
+                    </td>
+                    <td class="p-4 text-gray-600">${p.category}</td>
+                    <td class="p-4 font-semibold text-gray-900">${formatINR(p.price)}</td>
+                    <td class="p-4"><span class="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full font-medium">In Stock</span></td>
+                    <td class="p-4 text-right">
+                        <button onclick="alert('Edit product ID ${p.id}')" class="text-blue-600 hover:underline mr-3 text-sm font-medium">Edit</button>
+                        <button onclick="alert('Delete product ID ${p.id}')" class="text-red-600 hover:underline text-sm font-medium">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Cart Actions
+        function addToCart(productId) {
+            const prod = products.find(p => p.id === productId);
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ ...prod, qty: 1 });
+            }
+            updateCartUI();
+            openCart();
+        }
+
+        function updateCartUI() {
+            const count = cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cart-badge').innerText = count;
+
+            const container = document.getElementById('cart-items-container');
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-500 py-8">Your cart is empty.</p>`;
+                document.getElementById('cart-subtotal').innerText = '₹0';
+                return;
+            }
+
+            container.innerHTML = cart.map(item => `
+                <div class="flex items-center justify-between border-b pb-4">
+                    <div class="flex items-center space-x-3">
+                        <img src="${item.image}" class="w-16 h-16 object-cover rounded">
+                        <div>
+                            <h4 class="font-semibold text-sm text-gray-800">${item.name}</h4>
+                            <p class="text-sm text-gray-500">${formatINR(item.price)} x ${item.qty}</p>
+                        </div>
+                    </div>
+                    <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-700 text-sm font-bold">Remove</button>
+                </div>
+            `).join('');
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            document.getElementById('cart-subtotal').innerText = formatINR(subtotal);
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartUI();
+        }
+
+        function openCart() {
+            document.getElementById('cart-drawer').classList.remove('hidden');
+        }
+
+        function closeCart() {
+            document.getElementById('cart-drawer').classList.add('hidden');
+        }
+
+        function checkout() {
+            if (cart.length === 0) return alert('Your cart is empty!');
+            alert('Order placed successfully! Thank you for your purchase.');
+            cart = [];
+            updateCartUI();
+            closeCart();
+        }
+
+        function logout() {
+            localStorage.clear();
+            document.getElementById('shop-view').classList.add('hidden');
+            document.getElementById('admin-view').classList.add('hidden');
+            document.getElementById('auth-view').classList.remove('hidden');
+            document.getElementById('auth-form').reset();
+            showAlert('Logged out successfully.', true);
+        }
+
+        // Auto-login session check on page load
+        window.onload = () => {
+            const token = localStorage.getItem('token');
+            const userName = localStorage.getItem('userName');
+            const userRole = localStorage.getItem('userRole');
+
+            if (token && userName) {
+                routeUser(userRole || 'user', userName);
+            }
+        };
+    </script>
+</body>
+
+</html>
+<style>
+    /* ==============================
+   CUSTOM WEBSITE CSS
+============================== */
+
+    /* Global */
+    * {
+        box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #f5f7fb;
+        color: #1f2937;
+    }
+
+    /* ==============================
+   LOGIN / REGISTER PAGE
+============================== */
+
+    #auth-view {
+        background:
+            radial-gradient(circle at top left, #dbeafe, transparent 35%),
+            radial-gradient(circle at bottom right, #e0e7ff, transparent 35%),
+            #f8fafc;
+    }
+
+    /* Login card */
+    #auth-view>div {
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+
+    #auth-view>div:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Login icon */
+    #auth-view .fa-bag-shopping {
+        transition: transform 0.3s ease;
+    }
+
+    #auth-view>div:hover .fa-bag-shopping {
+        transform: scale(1.1) rotate(-5deg);
+    }
+
+    /* Inputs */
+    #auth-view input {
+        border: 1px solid #d1d5db;
+        transition: all 0.25s ease;
+    }
+
+    #auth-view input:hover {
+        border-color: #93c5fd;
+    }
+
+    #auth-view input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+    }
+
+    /* Login button */
+    #submit-btn {
+        transition: all 0.25s ease;
+    }
+
+    #submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+    }
+
+    /* ==============================
+   USER NAVBAR
+============================== */
+
+    #shop-view header {
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    #shop-view header .fa-bag-shopping {
+        transition: transform 0.3s ease;
+    }
+
+    #shop-view header .fa-bag-shopping:hover {
+        transform: rotate(-10deg) scale(1.1);
+    }
+
+    /* Cart button */
+    #shop-view header button {
+        transition: all 0.2s ease;
+    }
+
+    #shop-view header button:hover {
+        transform: translateY(-1px);
+    }
+
+    /* ==============================
+   PRODUCT SECTION
+============================== */
+
+    #shop-view main {
+        animation: fadeUp 0.5s ease;
+    }
+
+    /* Product cards */
+    #product-grid>div {
+        border: 1px solid #e5e7eb;
+        transition:
+            transform 0.3s ease,
+            box-shadow 0.3s ease;
+    }
+
+    #product-grid>div:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Product image */
+    #product-grid img {
+        transition: transform 0.4s ease;
+    }
+
+    #product-grid>div:hover img {
+        transform: scale(1.05);
+    }
+
+    /* Add to cart button */
+    #product-grid button {
+        transition: all 0.2s ease;
+    }
+
+    #product-grid button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(37, 99, 235, 0.25);
+    }
+
+    /* Search box */
+    #search-input {
+        transition: all 0.25s ease;
+    }
+
+    #search-input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    /* ==============================
+   ADMIN DASHBOARD
+============================== */
+
+    #admin-view main {
+        animation: fadeUp 0.5s ease;
+    }
+
+    /* Dashboard cards */
+    #admin-view main>div:first-child>div {
+        transition: all 0.25s ease;
+    }
+
+    #admin-view main>div:first-child>div:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Inventory box */
+    #admin-product-table tr {
+        transition: background 0.2s ease;
+    }
+
+    #admin-product-table tr:hover {
+        background: #f8fafc;
+    }
+
+    /* Admin buttons */
+    #admin-view button {
+        transition: all 0.2s ease;
+    }
+
+    #admin-view button:hover {
+        transform: translateY(-1px);
+    }
+
+    /* ==============================
+   CART DRAWER
+============================== */
+
+    #cart-drawer {
+        animation: fadeIn 0.25s ease;
+    }
+
+    #cart-drawer>div:last-child {
+        animation: slideFromRight 0.3s ease;
+    }
+
+    /* Cart items */
+    #cart-items-container>div {
+        transition: background 0.2s ease;
+        border-radius: 10px;
+    }
+
+    #cart-items-container>div:hover {
+        background: #f8fafc;
+    }
+
+    /* Checkout button */
+    #cart-drawer button {
+        transition: all 0.2s ease;
+    }
+
+    #cart-drawer button:hover {
+        transform: translateY(-1px);
+    }
+
+    /* ==============================
+   ALERT BOX
+============================== */
+
+    #alert-box {
+        animation: fadeUp 0.3s ease;
+    }
+
+    /* ==============================
+   ANIMATIONS
+============================== */
+
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideFromRight {
+        from {
+            transform: translateX(100%);
+        }
+
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    /* ==============================
+   SCROLLBAR
+============================== */
+
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #94a3b8;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+    }
+
+    /* ==============================
+   MOBILE RESPONSIVE
+============================== */
+
+    @media (max-width: 768px) {
+
+        #shop-view header .max-w-7xl,
+        #admin-view header .max-w-7xl {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        #shop-view header .text-xl,
+        #admin-view header .text-xl {
+            font-size: 17px;
+        }
+
+        #product-grid {
+            gap: 15px;
+        }
+
+        #cart-drawer>div:last-child {
+            width: 100%;
+            padding-left: 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+
+        #auth-view>div {
+            padding: 20px;
+        }
+
+        #shop-view main,
+        #admin-view main {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        #product-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

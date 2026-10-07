@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Share your feedback with NexusStore.">
+    <title>Feedback | NexusStore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-50 font-sans text-gray-800">
+    <header class="bg-white shadow-sm">
+        <div class="mx-auto flex min-h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
+            <a href="index.html" class="text-xl font-bold text-gray-900">Nexus<span class="text-blue-600">Store</span></a>
+            <nav aria-label="Main navigation" class="flex gap-4 text-sm font-medium">
+                <a href="contact.html" class="text-blue-600 hover:text-blue-800">Contact</a>
+                <a href="index.html" class="text-blue-600 hover:text-blue-800">Back to store</a>
+            </nav>
+        </div>
+    </header>
+    <main class="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+        <section class="rounded-2xl border bg-white p-6 shadow-sm sm:p-9">
+            <div class="text-center">
+                <h1 class="text-3xl font-bold text-gray-900">Share your feedback</h1>
+                <p class="mt-2 text-gray-600">We'd love to hear about your shopping experience.</p>
+            </div>
+            <form id="feedback-form" class="mt-8 space-y-4">
+                <div>
+                    <label for="feedback-name" class="block text-sm font-medium text-gray-700">Your name</label>
+                    <input id="feedback-name" name="name" required maxlength="60" autocomplete="name"
+                        class="mt-1 w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div>
+                    <label for="feedback-email" class="block text-sm font-medium text-gray-700">Email (optional)</label>
+                    <input id="feedback-email" name="email" type="email" maxlength="254" autocomplete="email"
+                        class="mt-1 w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400">
+                    <p class="mt-1 text-xs text-gray-500">Your email is stored privately and is not shown with public feedback.</p>
+                </div>
+                <div>
+                    <label for="feedback-message" class="block text-sm font-medium text-gray-700">Your comment</label>
+                    <textarea id="feedback-message" name="message" rows="5" required maxlength="1000"
+                        class="mt-1 w-full resize-y rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+                </div>
+                <button id="feedback-submit" type="submit"
+                    class="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-60">Post Feedback</button>
+                <p id="feedback-status" class="min-h-6 text-sm text-gray-600" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+        <section class="mt-8 rounded-2xl border bg-white p-6 shadow-sm sm:p-9" aria-labelledby="comments-title">
+            <h2 id="comments-title" class="text-xl font-semibold text-gray-900">Recent feedback</h2>
+            <p id="feedback-load-status" class="mt-2 text-sm text-gray-600" role="status" aria-live="polite"></p>
+            <div id="feedback-list" class="mt-4"></div>
+        </section>
+    </main>
+    <footer class="py-6 text-center text-sm text-gray-500">&copy; <span id="year"></span> NexusStore.</footer>
+    <script src="feedback.js" defer></script>
+</body>
+</html>
