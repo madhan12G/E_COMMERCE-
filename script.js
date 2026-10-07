@@ -223,6 +223,7 @@ async function startServer() {
         await mongoose.connect(MONGODB_URI);
         console.log('✅ Connected to MongoDB.');
         const PORT = process.env.PORT || 5000;
+        app.use(express.static(__dirname));
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
