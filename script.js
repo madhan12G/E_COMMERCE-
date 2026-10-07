@@ -1,14 +1,18 @@
 // server.js
 const express = require('express');
 const mongoose = require('mongoose');
-const path = require("path")
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 
 const app = express();
+
 app.use(express.json());
 app.use(cors());
+
+// Serve frontend files
+app.use(express.static(__dirname));
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ecommerce_db';
 
@@ -16,11 +20,12 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ecomme
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true }
 });
 
 const User = mongoose.model('User', userSchema);
 
+// Contact Schema & Model
 const contactSchema = new mongoose.Schema({
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, trim: true },
@@ -31,6 +36,7 @@ const contactSchema = new mongoose.Schema({
 
 const Contact = mongoose.model('Contact', contactSchema);
 
+// Feedback Schema & Model
 const feedbackSchema = new mongoose.Schema({
     name: { type: String, required: true, trim: true, maxlength: 60 },
     email: { type: String, trim: true, maxlength: 254 },
@@ -39,7 +45,9 @@ const feedbackSchema = new mongoose.Schema({
 });
 
 const Feedback = mongoose.model('Feedback', feedbackSchema);
-const JWT_SECRET = 'your_super_secret_jwt_key_here';
+
+// Use environment variable for JWT secret
+const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_jwt_key_here';
 
 // Register Endpoint
 app.post('/api/auth/register', async (req, res) => {
@@ -47,17 +55,34 @@ app.post('/api/auth/register', async (req, res) => {
         const { name, email, password } = req.body;
 
         const existingUser = await User.findOne({ email });
+
         if (existingUser) {
-            return res.status(400).json({ success: false, message: 'Email already registered.' });
+            return res.status(400).json({
+                success: false,
+                message: 'Email already registered.'
+            });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ name, email, password: hashedPassword });
+
+        const newUser = new User({
+            name,
+            email,
+            password: hashedPassword
+        });
+
         await newUser.save();
 
-        res.status(201).json({ success: true, message: 'User registered successfully!' });
+        res.status(201).json({
+            success: true,
+            message: 'User registered successfully!'
+        });
+
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Server error: ' + error.message });
+        res.status(500).json({
+            success: false,
+            message: 'Server error: ' + error.message
+        });
     }
 });
 
@@ -67,25 +92,50 @@ app.post('/api/auth/login', async (req, res) => {
         const { email, password } = req.body;
 
         const user = await User.findOne({ email });
+
         if (!user) {
-            return res.status(400).json({ success: false, message: 'Invalid email or password.' });
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid email or password.'
+            });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
+
         if (!isMatch) {
-            return res.status(400).json({ success: false, message: 'Invalid email or password.' });
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid email or password.'
+            });
         }
 
-        const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign(
+            {
+                userId: user._id,
+                email: user.email
+            },
+            JWT_SECRET,
+            {
+                expiresIn: '1h'
+            }
+        );
 
         res.json({
             success: true,
             message: 'Login successful!',
             token,
-            user: { id: user._id, name: user.name, email: user.email }
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            }
         });
+
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Server error: ' + error.message });
+        res.status(500).json({
+            success: false,
+            message: 'Server error: ' + error.message
+        });
     }
 });
 
@@ -114,6 +164,7 @@ app.post('/api/contact', async (req, res) => {
             success: true,
             message: 'Message sent successfully and saved to MongoDB.'
         });
+
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -122,12 +173,20 @@ app.post('/api/contact', async (req, res) => {
     }
 });
 
-// Contact & Feedback page support form
+// Contact Support Endpoint
 app.post('/api/contact-support', async (req, res) => {
     try {
-        const name = typeof req.body.name === 'string' ? req.body.name.trim() : '';
-        const email = typeof req.body.email === 'string' ? req.body.email.trim() : '';
-        const message = typeof req.body.message === 'string' ? req.body.message.trim() : '';
+        const name = typeof req.body.name === 'string'
+            ? req.body.name.trim()
+            : '';
+
+        const email = typeof req.body.email === 'string'
+            ? req.body.email.trim()
+            : '';
+
+        const message = typeof req.body.message === 'string'
+            ? req.body.message.trim()
+            : '';
 
         if (!name || !email || !message) {
             return res.status(400).json({
@@ -147,8 +206,10 @@ app.post('/api/contact-support', async (req, res) => {
             success: true,
             message: 'Your message was sent and saved to MongoDB.'
         });
+
     } catch (error) {
         console.error('Unable to save support message:', error);
+
         res.status(500).json({
             success: false,
             message: 'Unable to save your message. Please try again.'
@@ -156,9 +217,14 @@ app.post('/api/contact-support', async (req, res) => {
     }
 });
 
+// Get Feedback
 app.get('/api/feedback', async (req, res) => {
     try {
-        const feedback = await Feedback.find().sort({ createdAt: -1 }).lean();
+        const feedback = await Feedback
+            .find()
+            .sort({ createdAt: -1 })
+            .lean();
+
         res.json({
             success: true,
             feedback: feedback.map(({ _id, name, message, createdAt }) => ({
@@ -168,8 +234,10 @@ app.get('/api/feedback', async (req, res) => {
                 createdAt
             }))
         });
+
     } catch (error) {
         console.error('Unable to load feedback:', error);
+
         res.status(500).json({
             success: false,
             message: 'Unable to load feedback. Please try again.'
@@ -177,11 +245,20 @@ app.get('/api/feedback', async (req, res) => {
     }
 });
 
+// Post Feedback
 app.post('/api/feedback', async (req, res) => {
     try {
-        const name = typeof req.body.name === 'string' ? req.body.name.trim() : '';
-        const email = typeof req.body.email === 'string' ? req.body.email.trim() : '';
-        const message = typeof req.body.message === 'string' ? req.body.message.trim() : '';
+        const name = typeof req.body.name === 'string'
+            ? req.body.name.trim()
+            : '';
+
+        const email = typeof req.body.email === 'string'
+            ? req.body.email.trim()
+            : '';
+
+        const message = typeof req.body.message === 'string'
+            ? req.body.message.trim()
+            : '';
 
         if (!name || !message) {
             return res.status(400).json({
@@ -189,14 +266,24 @@ app.post('/api/feedback', async (req, res) => {
                 message: 'Please provide your name and comment.'
             });
         }
-        if (name.length > 60 || email.length > 254 || message.length > 1000) {
+
+        if (
+            name.length > 60 ||
+            email.length > 254 ||
+            message.length > 1000
+        ) {
             return res.status(400).json({
                 success: false,
                 message: 'Name must be 60 characters or fewer, email 254 characters or fewer, and comment 1000 characters or fewer.'
             });
         }
 
-        const entry = await new Feedback({ name, email, message }).save();
+        const entry = await new Feedback({
+            name,
+            email,
+            message
+        }).save();
+
         res.status(201).json({
             success: true,
             message: 'Your feedback has been saved.',
@@ -207,8 +294,10 @@ app.post('/api/feedback', async (req, res) => {
                 createdAt: entry.createdAt
             }
         });
+
     } catch (error) {
         console.error('Unable to save feedback:', error);
+
         res.status(500).json({
             success: false,
             message: 'Unable to save feedback. Please try again.'
@@ -216,21 +305,22 @@ app.post('/api/feedback', async (req, res) => {
     }
 });
 
+// Start Server
 const PORT = process.env.PORT || 5000;
 
 async function startServer() {
     try {
         await mongoose.connect(MONGODB_URI);
-        console.log('✅ Connected to MongoDB.');
-        const PORT = process.env.PORT || 5000;
-        app.use(express.static(__dirname));
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+        console.log('✅ Connected to MongoDB.');
+
+        app.listen(PORT, () => {
+            console.log(`🚀 Server running on port ${PORT}`);
+        });
+
     } catch (error) {
         console.error('❌ MongoDB connection error:', error);
-        process.exitCode = 1;
+        process.exit(1);
     }
 }
 
